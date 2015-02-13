@@ -14,8 +14,6 @@ import com.perm.kate.api.Auth;
 
 
 public class LoginActivity extends ActionBarActivity {
-    private static String APP_ID = "4774945";
-
     private WebView webView;
 
     @Override
@@ -28,7 +26,7 @@ public class LoginActivity extends ActionBarActivity {
 
         webView.setWebViewClient(new VKViewClient());
 
-        String url=Auth.getUrl(APP_ID, Auth.getSettings());
+        String url=Auth.getUrl(Constants.APP_ID, Auth.getSettings());
         webView.loadUrl(url);
     }
 
