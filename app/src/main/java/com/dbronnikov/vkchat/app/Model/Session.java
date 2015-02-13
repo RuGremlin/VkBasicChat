@@ -25,4 +25,6 @@ public class Session {
         access_token=prefs.getString("access_token", null);
         user_id=prefs.getLong("user_id", 0);
     }
+
+
 }

@@ -2,28 +2,30 @@ package com.dbronnikov.vkchat.app;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import com.dbronnikov.vkchat.app.Model.Session;
-import com.perm.kate.api.Api;
 
 
 public class ChatActivity extends ActionBarActivity {
     private final int REQUEST_LOGIN = 1;
     private Session session = new Session();
-    static Api vkApi;
+    private FragmentTransaction transaction;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
-        getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, new ChatFragment()).commit();
+        transaction = getSupportFragmentManager().beginTransaction();
 
         session.restore(this);
         if (session.access_token != null) {
-            vkApi = new Api(session.access_token, "4774945"); //TODO: exclude as constant
+            Log.i("ChatActivity", "token =" + session.access_token + ", user_id = " + session.user_id);
+            startChatFragmentWithSession();
         } else {
             startLoginActivity();
         }
@@ -56,9 +58,22 @@ public class ChatActivity extends ActionBarActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_LOGIN) {
             if (resultCode == RESULT_OK) {
-                System.out.println("token = " + data.getStringExtra("token"));
+                session.access_token = data.getStringExtra("token");
+                session.user_id = data.getLongExtra("user_id", 0);
+                session.save(this);
+                startChatFragmentWithSession();
+                Log.i("ChatActivity", "token =" + session.access_token + ", user_id = " + session.user_id);
             }
         }
+    }
+
+    private void startChatFragmentWithSession() {
+        Bundle bundle = new Bundle();
+        bundle.putString("token", session.access_token);
+        bundle.putLong("user_id", session.user_id);
+        ChatFragment fragment = new ChatFragment();
+        fragment.setArguments(bundle);
+        transaction.add(R.id.fragment_container, fragment).commit();
     }
 
     private void startLoginActivity() {
